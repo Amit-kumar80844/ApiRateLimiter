@@ -1,5 +1,5 @@
 package org.example.apiratelimiter.extractor;
 
-public interface Extractor<T> {
+public interface IdentityExtractor<T> {
     String extractIdentity(T request);
 }

@@ -1,4 +1,1 @@
-package org.example.apiratelimiter.algorithm;
-
-public class RateLimitAlgorithm {
-}
+package org.example.apiratelimiter.algorithm;public interface RateLimitAlgorithm {      boolean allowRequest(String id);}

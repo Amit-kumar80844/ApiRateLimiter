@@ -1,4 +1,4 @@
-package org.example.apiratelimiter.aspect;
+package org.example.apiratelimiter.extractor;
 
 import jakarta.servlet.http.HttpServletRequest;
 

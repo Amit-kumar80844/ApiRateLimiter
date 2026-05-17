@@ -1,4 +1,11 @@
 package org.example.apiratelimiter.exception;
 
-public record ErrorResponse() {
-}
+import java.time.Instant;
+
+public record ErrorResponse(
+        Instant timestamp,
+        int status,
+        String error,
+        String message,
+        String path
+) {}
