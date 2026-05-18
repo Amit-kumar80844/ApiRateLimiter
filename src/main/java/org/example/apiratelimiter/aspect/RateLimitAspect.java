@@ -7,8 +7,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.example.apiratelimiter.constants.RedisKeys;
 import org.example.apiratelimiter.exception.RateLimitExceededException;
-import org.example.apiratelimiter.extractor.JwtIdentityExtractor;
-import org.example.apiratelimiter.extractor.UriExtractor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,7 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 @Aspect
 @Component
 public class RateLimitAspect {
-
     @Around("@annotation(rateLimit)")
     public Object rateLimit(
             ProceedingJoinPoint joinPoint,
@@ -31,13 +28,13 @@ public class RateLimitAspect {
         RedisKeys redisKeys = new RedisKeys();// will replace it
         TokenBucketAlgorithm tokenBucketAlgorithm = new TokenBucketAlgorithm();
 
-        JwtIdentityExtractor jwtIdentityExtractor = new JwtIdentityExtractor();// use autowire
-        UriExtractor uriExtractor = new UriExtractor();
-        String userId = jwtIdentityExtractor.extractIdentity(request);
-        String uri = uriExtractor.extract(request);
-         // exception ends now work on redis
-        String key = redisKeys.generateKey(uri,userId);
-        if (!(tokenBucketAlgorithm.allowRequest(key))) {
+        int limit = rateLimit.limit();
+        int windowSize = rateLimit.windowSize();
+        String customKey = rateLimit.key();
+        String redisKey = redisKeys.generateKey(request,customKey);
+
+        // exception ends now work on redis
+        if (!(tokenBucketAlgorithm.allowRequest(redisKey,limit,windowSize))) {
             throw new RateLimitExceededException(
                     "To many request"
             );

@@ -1,1 +1,1 @@
-package org.example.apiratelimiter.algorithm;public interface RateLimitAlgorithm {      boolean allowRequest(String id);}
+package org.example.apiratelimiter.algorithm;public interface RateLimitAlgorithm {      boolean allowRequest(String redisKey,int limit,int window);}
