@@ -14,14 +14,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<ErrorResponse> handleRateLimitExceeded(
             RateLimitExceededException ex,
-            String request
+            HttpServletRequest request
     ) {
+
         ErrorResponse errorResponse = new ErrorResponse(
                 Instant.now(),
                 HttpStatus.TOO_MANY_REQUESTS.value(),
                 "Too Many Requests",
                 ex.getMessage(),
-                request
+                request.getRequestURI()
         );
 
         return ResponseEntity
@@ -32,12 +33,13 @@ public class GlobalExceptionHandler {
     /**
      * For another exception which is not known
      * Fallback
-     * */
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex,
             HttpServletRequest request
     ) {
+
         ErrorResponse errorResponse = new ErrorResponse(
                 Instant.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

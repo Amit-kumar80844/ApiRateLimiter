@@ -12,7 +12,6 @@ public class JwtIdentityExtractor implements IdentityExtractor<HttpServletReques
         return decodeUserId(token);
     }
 
-
     // This method will be changed by the client to properly decode the JWT and extract the user ID.
     private String decodeUserId(String token) {
         if (token != null && token.startsWith("Bearer ")) {

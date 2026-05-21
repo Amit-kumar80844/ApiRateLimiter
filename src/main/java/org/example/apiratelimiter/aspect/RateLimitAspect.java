@@ -1,44 +1,70 @@
 package org.example.apiratelimiter.aspect;
 
-import org.example.apiratelimiter.algorithm.TokenBucketAlgorithm;
-import org.example.apiratelimiter.annotation.RateLimit;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.example.apiratelimiter.constants.RedisKeys;
+import org.example.apiratelimiter.algorithm.TokenBucketAlgorithm;
+import org.example.apiratelimiter.annotation.RateLimit;
 import org.example.apiratelimiter.exception.RateLimitExceededException;
+import org.example.apiratelimiter.redis.RedisKeyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class RateLimitAspect {
+
+    private final TokenBucketAlgorithm tokenBucketAlgorithm;
+    private final RedisKeyBuilder redisKeyBuilder;
+
     @Around("@annotation(rateLimit)")
     public Object rateLimit(
             ProceedingJoinPoint joinPoint,
             RateLimit rateLimit
     ) throws Throwable {
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        ServletRequestAttributes requestAttributes =
+                (ServletRequestAttributes)
+                        RequestContextHolder.getRequestAttributes();
+
         if (requestAttributes == null) {
-            throw new IllegalStateException("No RequestAttributes found. This aspect should only be used in a web context.");
-        }
-        HttpServletRequest request = requestAttributes.getRequest();/* [request] have headers,ip,jwt,uri */
-        RedisKeys redisKeys = new RedisKeys();// will replace it
-        TokenBucketAlgorithm tokenBucketAlgorithm = new TokenBucketAlgorithm();
-
-        int limit = rateLimit.limit();
-        int windowSize = rateLimit.windowSize();
-        String customKey = rateLimit.key();
-        String redisKey = redisKeys.generateKey(request,customKey);
-
-        // exception ends now work on redis
-        if (!(tokenBucketAlgorithm.allowRequest(redisKey,limit,windowSize))) {
-            throw new RateLimitExceededException(
-                    "To many request"
+            throw new IllegalStateException(
+                    "No RequestAttributes found"
             );
         }
+
+        HttpServletRequest request =
+                requestAttributes.getRequest();
+
+
+
+        int capacity = rateLimit.capacity();
+        int refillTokens = rateLimit.refillTokens();
+        int refillDuration = rateLimit.refillDuration();
+
+        String customKey = rateLimit.key();
+
+        String redisKey =
+                redisKeyBuilder.generateKey(request, customKey);
+
+        boolean allowed =
+                tokenBucketAlgorithm.allowRequest(
+                        redisKey,
+                        capacity,
+                        refillTokens,
+                        refillDuration
+                );
+
+        if (!allowed) {
+            throw new RateLimitExceededException(
+                    "Too many requests"
+            );
+        }
+
         return joinPoint.proceed();
     }
 }
