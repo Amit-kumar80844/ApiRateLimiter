@@ -10,38 +10,38 @@ rate-limiter-sdk/
 │   │
 │   ├── algorithm/
 │   │     ├── RateLimitAlgorithm.java
-│   │     ├── SlidingWindowAlgorithm.java
-│   │     ├── FixedWindowAlgorithm.java
+│   │     ├── SlidingWindowAlgorithm.java->counter
+│   │     ├── FixedWindowAlgorithm.java ->future
 │   │     └── TokenBucketAlgorithm.java// implemented
 │   │
 │   ├── redis/
 │   │     ├── RedisManager.java
 │   │     ├── RedisScriptExecutor.java
-│   │     └── RedisKeyBuilder.java
+│   │     └── RedisKeyBuilder.java  //
 │   │
-│   ├── model/
+│   ├── model/                      // no need
 │   │     ├── RateLimitConfig.java
 │   │     ├── RateLimitResult.java
 │   │     └── UserIdentity.java
 │   │
 │   ├── extractor
-│   │     ├── IdentityExtractor.java
-│   │     ├── JwtIdentityExtractor.java
+│   │     ├── IdentityExtractor.java //
+│   │     ├── JwtIdentityExtractor.java //
 │   │     └── IpIdentityExtractor.java-> future
 │   │
 │   ├── interceptor/
 │   │     └── RequestInterceptor.java
 │   │
 │   ├── exception/
-│   │     ├── RateLimitExceededException.java
-│   │     └── InvalidRateLimitConfigException.java
+│   │     ├── RateLimitExceededException.java //
+│   │     └── InvalidRateLimitConfigException.java//
 │   │
 │   ├── response/
 │   │     └── RateLimitResponseHandler.java
 │   │
 │   ├── config/
 │   │     ├── RateLimiterProperties.java
-│   │     ├── RedisConfiguration.java
+│   │     ├── RedisConfiguration.java //
 │   │     └── RateLimiterAutoConfiguration.java
 │   │
 │   ├── util/
