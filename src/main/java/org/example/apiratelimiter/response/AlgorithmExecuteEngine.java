@@ -5,9 +5,12 @@ import lombok.AllArgsConstructor;
 import org.example.apiratelimiter.algorithm.SlidingWindowAlgorithm;
 import org.example.apiratelimiter.algorithm.TokenBucketAlgorithm;
 import org.example.apiratelimiter.annotation.RateLimit;
+import org.example.apiratelimiter.configuration.RateLimitConfig;
 import org.example.apiratelimiter.redis.RedisKeyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import static org.example.apiratelimiter.enums.AlgorithmType.SLIDING_WINDOW_COUNTER;
 
 @Component
 @AllArgsConstructor
@@ -18,65 +21,36 @@ public class AlgorithmExecuteEngine {
     private final SlidingWindowAlgorithm
             slidingWindowAlgorithm;
 
-    private final RedisKeyBuilder redisKeyBuilder;
-
     public boolean allowRequest(
-            ServletRequestAttributes requestAttributes,
-            RateLimit rateLimit
+            String redisKey,
+            RateLimitConfig config
     ) {
 
-        HttpServletRequest request =
-                requestAttributes.getRequest();
-
-        String customKey = rateLimit.key();
-
-        String redisKey =
-                redisKeyBuilder.generateKey(
-                        request,
-                        customKey
-                );
-
-        switch (rateLimit.algorithm()) {
+        switch (config.algorithm()) {
 
             case SLIDING_WINDOW_COUNTER -> {
-
-                int limit =
-                        rateLimit.limit();
-
-                int windowSize =
-                        rateLimit.windowSize();
 
                 return slidingWindowAlgorithm
                         .allowRequest(
                                 redisKey,
-                                limit,
-                                windowSize
+                                config.limit(),
+                                config.windowSize()
                         );
             }
 
             case TOKEN_BUCKET -> {
 
-                int capacity =
-                        rateLimit.capacity();
-
-                int refillTokens =
-                        rateLimit.refillTokens();
-
-                int refillDuration =
-                        rateLimit.refillDuration();
-
                 return tokenBucketAlgorithm
                         .allowRequest(
                                 redisKey,
-                                capacity,
-                                refillTokens,
-                                refillDuration
+                                config.capacity(),
+                                config.refillTokens(),
+                                config.refillDuration()
                         );
             }
 
             default -> throw new IllegalArgumentException(
-                    "Unsupported algorithm: "
-                            + rateLimit.algorithm()
+                    "Unsupported algorithm"
             );
         }
     }

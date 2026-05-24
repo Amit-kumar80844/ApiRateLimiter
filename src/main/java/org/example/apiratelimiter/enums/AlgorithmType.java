@@ -6,3 +6,8 @@ public enum AlgorithmType {
     FIXED_WINDOW,
     LEAKY_BUCKET
 }
+
+/**
+ * Currently, only TOKEN_BUCKET and SLIDING_WINDOW_COUNTER are implemented.
+ * Other types are placeholders for future extensions.
+ */
