@@ -31,10 +31,9 @@ To integrate this API Rate Limiter into your Spring Boot project, you can direct
 
 First, obtain the project source code:
 ```bash
-git clone https://github.com/your-username/ApiRateLimiter.git
+git clone https://github.com/Amit-kumar80844/ApiRateLimiter.git
 cd ApiRateLimiter
 ```
-*(Replace `your-username` with the actual GitHub username where this project is hosted.)*
 
 ### 2. Integrate into Your Project
 
